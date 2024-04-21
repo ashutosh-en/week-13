@@ -40,7 +40,7 @@ blogRouter.use('/*', async (c, next) => {
         data:{
          title:body.title,
          content:body.content,
-         authorId:authorId
+         authorId:authorId,
         },
       });
       return c.json({

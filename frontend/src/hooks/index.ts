@@ -15,12 +15,11 @@ export const useBlog=({id}:{id:string})=>{
     const [blog,setBlog]=useState<Blog>({
         content:"",
         title:"",
-    id:"",
-    author:{
-        name:"",
-    }
-    }
-    );
+        id:"",
+        author:{
+             name:"",
+        }
+    });
     useEffect(()=>{
         axios.get(`${BACKEND_URL}/api/v1/blog/${id}`,{
             headers:{
