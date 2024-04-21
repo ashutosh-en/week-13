@@ -10,7 +10,7 @@ const app = new Hono<{
 }>();
 app.use('/*', cors())
 app.get('/',(c)=>{
-	return c.json("Hello there")
+	return c.json("Start Of the serve")
 })
 app.route('/api/v1/user/', userRouter)
 app.route('/api/v1/blog/', blogRouter)

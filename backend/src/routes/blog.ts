@@ -14,8 +14,10 @@ export const blogRouter= new Hono<{
 }>();
 blogRouter.use('/*', async (c, next) => {
     const header=c.req.header('Authorization')||"";
+    /*console.log(header);
     const token= header.split(" ")[1]
-    const user = await verify(token,c.env.JWT_SECRET);
+    console.log(token);*/
+    const user = await verify(header,c.env.JWT_SECRET);
     if(user){
         c.set("userId",user.id)
        await next()
@@ -75,16 +77,56 @@ blogRouter.use('/*', async (c, next) => {
 
     }
   })
+    //Todo :add Pagination
+  blogRouter.get('/bulk',async(c)=>{
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
+      try{
+      const blog = await prisma.post.findMany({
+        select:{
+          content:true,
+          title:true,
+          id:true,
+          author:{
+            select:{
+              name:true
+            }
+          }
+        }
+      }
+      );
+      return c.json({
+        blog
+      })
+    } 
+    catch(e){
+        c.status(411);
+        return c.json({
+            message:"Error while fetching blog"
+        })
+    }
+  })
+
   blogRouter.get('/:id', async(c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate())
       try{
-        console.log("Hello there")
       const id= await c.req.param("id")
       const blog = await prisma.post.findFirst({
         where:{
             id:id
+        },
+        select:{
+          id:true,
+          title:true,
+          content:true,
+          author:{
+            select:{
+              name:true
+            }
+          }
         }
       });
       return c.json({
@@ -98,23 +140,5 @@ blogRouter.use('/*', async (c, next) => {
         })
     }
   })
-  //Todo :add Pagination
-  blogRouter.get('/bulk',async(c)=>{
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL,
-    }).$extends(withAccelerate())
-    console.log("outside of try");
-      try{
-      const blog = await prisma.post.findMany();
-      console.log(blog+"here is the blogs");
-      return c.json({
-        blog
-      })
-    } 
-    catch(e){
-        c.status(411);
-        return c.json({
-            message:"Error while fetching blog"
-        })
-    }
-  })
+
+  
